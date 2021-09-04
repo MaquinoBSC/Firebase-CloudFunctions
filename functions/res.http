@@ -1,0 +1,18 @@
+GET http://localhost:5001/cloudfunctions-583e9/us-central1/api
+
+###
+POST http://localhost:5001/cloudfunctions-583e9/us-central1/api
+Content-Type: application/json
+
+{
+    "name": "Martin Hernandez",
+    "Universidad": "ESCOM"
+}
+
+
+###
+DELETE http://localhost:5001/cloudfunctions-583e9/us-central1/api
+
+
+###
+PUT http://localhost:5001/cloudfunctions-583e9/us-central1/api

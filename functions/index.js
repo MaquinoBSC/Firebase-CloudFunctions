@@ -15,6 +15,45 @@ const db= admin.firestore();
 //     return
 // });
 
+exports.api= functions.https.onRequest((req, res)=> {
+  switch (req.method) {
+    case "GET":
+      res.json({
+        succes: true,
+        type: 'get',
+        msg: "It was a get request"
+      });
+      break;
+  
+    case "POST":
+      const body= req.body;
+      
+      res.json({
+        success: true,
+        type: 'post',
+        msg: "It was a post request",
+        body
+      });
+      break;
+
+    case "DELETE":
+      res.json({
+        success: true,
+        type: 'delete',
+        msg: "It was a delete request"
+      });
+      break;
+    
+    default:
+      res.json({
+        success: true,
+        type: 'default',
+        msg: "It was a default request"
+      });
+      break;
+  }
+});
+
 exports.scheduledFunction = functions.pubsub.schedule('0 22 * * *').onRun( async(context) => {
   const doc= db.collection('schedule').doc('19950120');
 
