@@ -1,5 +1,7 @@
 const functions = require("firebase-functions");
 const admin= require('firebase-admin');
+const axios= require('axios');
+
 
 admin.initializeApp();
 
@@ -15,19 +17,22 @@ const db= admin.firestore();
 //     return
 // });
 
-exports.api= functions.https.onRequest((req, res)=> {
+exports.api= functions.https.onRequest( async (req, res)=> {
   switch (req.method) {
     case "GET":
+      const response= await axios.get('http://jsonplaceholder.typicode.com/users/1');
+      
       res.json({
         succes: true,
         type: 'get',
-        msg: "It was a get request"
+        msg: "It was a get request",
+        data: response.data,
       });
       break;
   
     case "POST":
       const body= req.body;
-      
+
       res.json({
         success: true,
         type: 'post',
