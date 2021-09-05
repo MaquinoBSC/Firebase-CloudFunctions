@@ -69,6 +69,7 @@ exports.scheduledFunction = functions.pubsub.schedule('0 22 * * *').onRun( async
 });
 
 
+//Eventos de autenticacion
 exports.userAdedd= functions.auth.user().onCreate((user)=> {
   console.log(`New user ${user.displayName} is created, email: ${user.email}, uid: ${user.uid}`);
 
@@ -78,7 +79,26 @@ exports.userAdedd= functions.auth.user().onCreate((user)=> {
 exports.userDeleted= functions.auth.user().onDelete((user)=> {
   console.log(`user deleted ${user.displayName} is created, email: ${user.email}, uid: ${user.uid}`);
 
+  return Promise.resolve();
+});
+
+
+//Eventos de firestore
+exports.fruitAdedd= functions.firestore.document('/fruit/{documentId}').onCreate((snapshot, context)=> {
+  console.log(snapshot.data(), 'added');
 
   return Promise.resolve();
 });
 
+exports.fruitDeleted= functions.firestore.document('/fruit/{documentId}').onDelete((snapshot, context)=> {
+  console.log(snapshot.data(), 'deleted');
+
+  return Promise.resolve();
+});
+
+exports.fruitUpdated= functions.firestore.document('/fruit/{documentId}').onUpdate((snapshot, context)=> {
+  console.log(`Before ${snapshot.before.data().name}`);
+  console.log(`After ${snapshot.after.data().name}`);
+
+  return Promise.resolve();
+})
