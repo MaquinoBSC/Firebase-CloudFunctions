@@ -67,3 +67,18 @@ exports.scheduledFunction = functions.pubsub.schedule('0 22 * * *').onRun( async
     time: admin.firestore.Timestamp.now()
   });
 });
+
+
+exports.userAdedd= functions.auth.user().onCreate((user)=> {
+  console.log(`New user ${user.displayName} is created, email: ${user.email}, uid: ${user.uid}`);
+
+  return Promise.resolve();
+});
+
+exports.userDeleted= functions.auth.user().onDelete((user)=> {
+  console.log(`user deleted ${user.displayName} is created, email: ${user.email}, uid: ${user.uid}`);
+
+
+  return Promise.resolve();
+});
+
