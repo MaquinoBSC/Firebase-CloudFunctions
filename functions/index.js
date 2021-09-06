@@ -104,11 +104,21 @@ exports.fruitUpdated= functions.firestore.document('/fruit/{documentId}').onUpda
 });
 
 
-exports.testOnCall= functions.https.onCall( async (data, context)=> {
-  console.log("Estamos desde onCall functions");
+// exports.testOnCall= functions.https.onCall( async (data, context)=> {
+//   console.log("Estamos desde onCall functions");
 
-  return {
-    status: "Jalando",
-    msg: "Todo bien perron",
-  }
+//   return {
+//     status: "Jalando",
+//     msg: "Todo bien perron",
+//   }
+// });
+
+
+exports.testSchedule= functions.pubsub.schedule('0 20 25 * *').onRun( async(context)=> {
+  const doc= db.collection('schedule').doc('25122013');
+
+  await doc.update({
+    update: admin.firestore.FieldValue.increment(1),
+    time: admin.firestore.Timestamp.now()
+  });
 });
