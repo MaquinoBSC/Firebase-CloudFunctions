@@ -101,4 +101,14 @@ exports.fruitUpdated= functions.firestore.document('/fruit/{documentId}').onUpda
   console.log(`After ${snapshot.after.data().name}`);
 
   return Promise.resolve();
-})
+});
+
+
+exports.testOnCall= functions.https.onCall( async (data, context)=> {
+  console.log("Estamos desde onCall functions");
+
+  return {
+    status: "Jalando",
+    msg: "Todo bien perron",
+  }
+});
