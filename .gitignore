@@ -66,3 +66,6 @@ node_modules/
 
 # dotenv environment variables file
 .env
+
+# archivo que contiene las credenciales del proyecto de firebase
+credentials.json
