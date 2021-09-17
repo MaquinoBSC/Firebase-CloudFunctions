@@ -6,11 +6,15 @@ const Printer = require('pdfmake');
 const fonts = require('pdfmake/build/vfs_fonts.js');
 const PdfKit= require('pdfkit');
 const { v4: uuidv4 } = require('uuid');
+const nodemailer= require('nodemailer');
 
-const serviceAccount = require('../credentials.json');
+//const serviceAccount = require('../credentials.json');
 
 
-admin.initializeApp();
+admin.initializeApp({
+  credential: admin.credential.applicationDefault(),
+  databaseURL: "https://cloudfunctions-583e9-default-rtdb.firebaseio.com",
+});
 
 const db= admin.firestore();
 
@@ -228,17 +232,25 @@ exports.generatePDF= functions.https.onRequest( (request, response)=> {
 
 
 exports.createPDF= functions.https.onRequest( async (request, response)=>{
+  if (request.method !== "GET") {
+    response.send(405, 'HTTP Method ' + request.method + ' not allowed');
+    return null;
+  }
+
   const doc = new PdfKit();
   let receiptId = uuidv4();
 
   //Configurar el storage
   const storage = new Storage({
-    keyFilename: '../credentials.json',
+    keyFilename: './credentials.json',
     projectId: 'cloudfunctions-583e9'
   });
 
   const bucket = storage.bucket('cloudfunctions-583e9.appspot.com');
 
+  console.log("Configuracion todo cool");
+
+  console.log("Creamos archivo");
   const file= bucket.file(`reports/${receiptId}.pdf`);
 
   await new Promise((resolve, reject) => {
@@ -299,13 +311,71 @@ exports.createPDF= functions.https.onRequest( async (request, response)=>{
     }
     doc.end();
   });
+  console.log("Cerramos archivo");
 
+  try {
+    const url = await file.getSignedUrl({
+      version: "v4",
+      action: "read",
+      expires: Date.now() + 24 * 60 * 60 * 1000,
+    });
+      
+    response.send(url);
+  } catch (error) {
+    console.log(error);
+  }
   
-  const url = await file.getSignedUrl({
-    version: "v4",
-    action: "read",
-    expires: Date.now() + 24 * 60 * 60 * 1000,
-  });
-    
-  response.send(url);
 });
+
+
+const transporter= nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
+  auth: {
+    user: "martinare.ipn@gmail.com",
+    pass: "Skacore_95"
+  }
+});
+
+exports.welcomeMail= functions.firestore.document("bienvenida/{documentId}").onCreate( async (snap, context)=> {
+  const email= snap.data().email;
+  const name= snap.data().name;
+
+  const mailOptions= {
+    from: "martinare.ipn@gmail.com",
+    to: "mhernandezc1413@egresado.ipn.mx",
+    subject: "email test",
+    Text: "Hola Maquino",
+    html: `
+      <h1>Hola Martin </h1>
+      <p>Gracias por unirte a nosotros</p>
+      <a href="https://www.youtube.com">Visitanos!!</a>
+    `
+  };
+
+  return transporter.sendMail(mailOptions, (erro, data)=> {
+    if(erro){
+      console.log(erro.message);
+      return
+    }
+
+    console.log("Sent!!");
+  });
+});
+
+//function aux
+// async function sendWelcomeMail(email, name){
+//   return await transport.sendMail({
+//     from: "Maquino <contacto@fixter.com>",
+//     to: "martinare.ipn@gmail.com",
+//     subject: "email test",
+//     html: `
+//       <h1>Hola ${name} </h1>
+//       <p>Gracias por unirte a nosotros</p>
+//       <a href="https://www.youtube.com">Visitanos!!</a>
+//     `
+//   })
+//     .then((res)=> res)
+//     .catch((err)=> err)
+// }
